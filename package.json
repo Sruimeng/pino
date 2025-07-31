@@ -16,8 +16,34 @@
       {
         "command": "pino.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "pino.parsePrompt",
+        "title": "Parse Prompt"
+      },
+      {
+        "command": "pino.openPromptEnhancer",
+        "title": "Open Prompt Enhancer"
       }
-    ]
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "pino.promptParserView",
+          "name": "Prompt Parser",
+          "when": "true"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pino-explorer",
+          "title": "Pino Tools",
+          "icon": "$(symbol-text)"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Enhancer</title>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            padding: 20px;
+            color: var(--vscode-foreground);
+            background-color: var(--vscode-editor-background);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: var(--vscode-foreground);
+            border-bottom: 1px solid var(--vscode-panel-border);
+            padding-bottom: 10px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            padding: 10px;
+            resize: vertical;
+            font-family: var(--vscode-font-family);
+        }
+        button {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: var(--vscode-font-family);
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        .result-section {
+            margin-top: 20px;
+        }
+        .result-box {
+            background-color: var(--vscode-textBlockQuote-background);
+            border: 1px solid var(--vscode-textBlockQuote-border);
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+        .spinner {
+            border: 2px solid var(--vscode-progressBar-background);
+            border-top: 2px solid var(--vscode-foreground);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Prompt Enhancer</h1>
+        
+        <div class="input-section">
+            <label for="promptInput">Enter your prompt:</label>
+            <textarea id="promptInput" placeholder="Enter your prompt here..."></textarea>
+            <button id="enhanceButton">Enhance Prompt</button>
+            <div id="loadingIndicator" class="loading">
+                <div class="spinner"></div>
+                <span>Enhancing your prompt...</span>
+            </div>
+        </div>
+        
+        <div class="result-section">
+            <h2>Results</h2>
+            <div id="resultsContainer">
+                <p>Enhanced prompt will appear here...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const vscode = acquireVsCodeApi();
+        
+        document.getElementById('enhanceButton').addEventListener('click', () => {
+            const prompt = document.getElementById('promptInput').value;
+            if (!prompt.trim()) {
+                alert('Please enter a prompt');
+                return;
+            }
+            
+            // 显示加载指示器
+            document.getElementById('loadingIndicator').style.display = 'block';
+            
+            // 发送消息到扩展
+            vscode.postMessage({
+                command: 'enhancePrompt',
+                prompt: prompt
+            });
+        });
+        
+        // 监听来自扩展的消息
+        window.addEventListener('message', event => {
+            const message = event.data;
+            
+            switch (message.command) {
+                case 'enhanceResult':
+                    // 隐藏加载指示器
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    
+                    // 显示结果
+                    const resultsContainer = document.getElementById('resultsContainer');
+                    resultsContainer.innerHTML = `
+                        <div class="result-box">
+                            <strong>Original Prompt:</strong>
+                            <div>${message.result.originalPrompt}</div>
+                        </div>
+                        <div class="result-box">
+                            <strong>Enhanced Prompt:</strong>
+                            <div>${message.result.enhancedPrompt}</div>
+                        </div>
+                        <div class="result-box">
+                            <strong>Intent:</strong> ${message.result.intent}
+                        </div>
+                        <div class="result-box">
+                            <strong>Key Information:</strong> [${message.result.keyInfo.join(', ')}]
+                        </div>
+                        <div class="result-box">
+                            <strong>Context Dependencies:</strong> [${message.result.contextDependencies.join(', ')}]
+                        </div>
+                    `;
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
